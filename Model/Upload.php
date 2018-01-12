@@ -98,4 +98,12 @@ class Upload
 
         return $cleanMimeTypes;
     }
+
+    /**
+     * @return string
+     */
+    public function getUploadFolder()
+    {
+        return $this->uploadFolder;
+    }
 }
