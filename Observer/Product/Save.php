@@ -5,6 +5,8 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Framework\Registry;
 use Sebwite\ProductDownloads\Model\Upload;
 use Sebwite\ProductDownloads\Model\DownloadFactory;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\Driver\File;
 
 class Save implements \Magento\Framework\Event\ObserverInterface
 {
@@ -26,16 +28,30 @@ class Save implements \Magento\Framework\Event\ObserverInterface
     /** @var \Sebwite\ProductDownloads\Model\DownloadFactory */
     private $downloadFactory;
 
+    /**
+     * @var Filesystem
+     */
+    protected $fileSystem;
+
+    /**
+     * @var File
+     */
+    protected $fileDriver;
+
     public function __construct(
         Registry $coreRegistry,
         Upload $upload,
         Context $context,
-        DownloadFactory $downloadFactory
+        DownloadFactory $downloadFactory,
+        Filesystem $filesystem,
+        File $fileDriver
     ) {
         $this->coreRegistry = $coreRegistry;
         $this->upload       = $upload;
         $this->context      = $context;
         $this->downloadFactory = $downloadFactory;
+        $this->fileSystem = $filesystem;
+        $this->fileDriver = $fileDriver;
     }
 
     /**
@@ -103,6 +119,16 @@ class Save implements \Magento\Framework\Event\ObserverInterface
                     $download = $this->downloadFactory->create();
                     $download->load($deleteId);
                     $download->delete();
+
+                    try {
+                        $mediaRootDir = $this->fileSystem->getDirectoryRead(\Magento\Framework\App\Filesystem\DirectoryList::MEDIA)->getAbsolutePath($this->upload->getUploadFolder());
+                        $mediaRootDir = rtrim($mediaRootDir, '/');
+                        if ($this->fileDriver->isExists($mediaRootDir . $download->getDownloadUrl())) {
+                            $this->fileDriver->deleteFile($mediaRootDir . $download->getDownloadUrl());
+                        }
+                    } catch (\Exception $e) {
+                        // TODO: add a message to the admin session
+                    }
                 }
             }
         }
