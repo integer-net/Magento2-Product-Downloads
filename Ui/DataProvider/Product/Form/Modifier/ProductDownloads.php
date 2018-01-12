@@ -54,8 +54,7 @@ class ProductDownloads extends AbstractModifier
     {
         $fields   = [];
         $_product = $this->registry->registry('current_product');
-
-        $downloads = $this->download->getDownloadsForProduct($_product->getId());
+        $downloads = $this->download->getDownloadsForProductInStore($_product->getId(), $_product->getStoreId(), false);
 
         for ($i = 0; $i < $this->_amountDownloads; $i++) {
 

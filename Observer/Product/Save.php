@@ -66,6 +66,7 @@ class Save implements \Magento\Framework\Event\ObserverInterface
     private function addDownloads($downloads, $product)
     {
         $productId = $product->getId();
+        $storeId = $product->getStoreId();
 
         // Loop through uploaded downlaods
         foreach ($downloads as $download) {
@@ -86,6 +87,7 @@ class Save implements \Magento\Framework\Event\ObserverInterface
                 $download->setDownloadFile($uploadedDownload[ 'name' ]);
                 $download->setDownloadType($uploadedDownload[ 'type' ]);
                 $download->setProductId($productId);
+                $download->setStoreId($storeId);
                 $download->save();
             }
         }
