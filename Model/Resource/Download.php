@@ -75,6 +75,32 @@ class Download extends AbstractDb
     }
 
     /**
+     * Retrieve all Downloads for product - within the desired store view and default store view
+     *
+     * @param $id
+     * @param null $storeId
+     * @return array
+     */
+    public function getDownloadsForProductInStoreAndDefault($id, $storeId = null)
+    {
+        $adapter = $this->getConnection();
+
+        if (is_null($storeId)) {
+            $storeId = 0;
+        }
+
+        $select = $adapter->select()
+            ->from($this->getMainTable())
+            ->where('product_id = :product_id AND store_id IN(:store_id, 0)');
+        $binds = [
+            'product_id' => (int) $id,
+            'store_id' => (int) $storeId
+        ];
+
+        return $adapter->fetchAll($select, $binds);
+    }
+
+    /**
      * Retrieve all Downloads for product - within the desired store view.
      *
      * @param $id
