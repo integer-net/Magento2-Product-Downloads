@@ -116,7 +116,7 @@ class Download extends AbstractModel implements IdentityInterface
      */
     public function getUrl($download)
     {
-        return 'pub/media/' . $this->uploadFolder . $download['download_url'];
+        return 'pub/media/' . rtrim($this->uploadFolder, '/') . $download['download_url'];
     }
 
     /**
