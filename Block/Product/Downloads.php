@@ -76,7 +76,6 @@ class Downloads extends Template
      */
     public function getDownloadUrl($download)
     {
-        // @TODO - index.php weghalen
-        return str_replace('index.php', '', $this->getBaseUrl()) . $this->download->getUrl($download);
+        return $this->download->getStoreBaseUrl() . '/' . $this->download->getUrl($download);
     }
 }

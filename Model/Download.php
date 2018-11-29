@@ -7,6 +7,9 @@ use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Model\Context;
 use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Registry;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Model\Store;
 
 /**
  * Class:Download
@@ -60,13 +63,25 @@ class Download extends AbstractModel implements IdentityInterface
     protected $filter;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
      * @var string
      */
     private $uploadFolder = 'sebwite/productdownloads/';
 
-    public function __construct(FilterManager $filter, Context $context, Registry $registry, AbstractResource $resource = null, AbstractDb $resourceCollection = null, array $data = [])
+    public function __construct(FilterManager $filter, Context $context, Registry $registry, ScopeConfigInterface $scopeConfig, StoreManagerInterface $storeManager, AbstractResource $resource = null, AbstractDb $resourceCollection = null, array $data = [])
     {
         $this->filter = $filter;
+        $this->storeManager = $storeManager;
+        $this->scopeConfig = $scopeConfig;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
@@ -153,6 +168,17 @@ class Download extends AbstractModel implements IdentityInterface
     public function getDownloadsForProductInStore($downloadId, $storeId = null, $fallbackToDefault = true)
     {
         return $this->getResource()->getDownloadsForProductInStore($downloadId, $storeId, $fallbackToDefault);
+    }
+
+    /**
+     * @return string
+     */
+    public function getStoreBaseUrl()
+    {
+        $urlConfigPath = $this->storeManager->getStore()->isCurrentlySecure() ? Store::XML_PATH_SECURE_BASE_URL
+            : Store::XML_PATH_UNSECURE_BASE_URL;
+
+        return rtrim($this->scopeConfig->getValue($urlConfigPath), '/');
     }
 
     /**
